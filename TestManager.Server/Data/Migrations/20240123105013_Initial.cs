@@ -30,19 +30,6 @@ namespace TestManager.Server.Data.Migrations
                     table.PrimaryKey("PK_Tests", x => x.ID);
                 });
             
-            migrationBuilder.AlterColumn<DateTime>(
-            name: "KickOffTimeStamp",
-            table: "Tests",
-            nullable: true,
-            oldClrType: typeof(DateTime),
-            oldType: "datetime");
-
-            migrationBuilder.AlterColumn<DateTime>(
-            name: "LastModifiedTimeStamp",
-            table: "Tests",
-            nullable: true,
-            oldClrType: typeof(DateTime),
-            oldType: "datetime");
         }
 
         /// <inheritdoc />

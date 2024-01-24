@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using TestManager.Server.Data;
 using TestManager.Server.Data.Models;
 
@@ -38,6 +33,51 @@ namespace TestManager.Server.Controllers
             return test;
         }
 
+        [HttpPost("filters")]
+        public async Task<ActionResult<IEnumerable<Test>>> FilteredTests(Filter filters) 
+        {
+            if (_context.Tests == null)
+            {
+                return NotFound("No Data Found!");
+            }
+
+            List<Test> allData = await _context.Tests.ToListAsync();
+
+            if (filters.All)
+            {
+                return allData;
+            }
+
+            if(filters.Status != null)
+            {
+                allData = allData.Where(e => e.Status == filters.Status).ToList();
+            }
+
+            if (filters.SpecifiedDate != null)
+            {
+                allData = allData.Where(e => e.KickOffTimeStamp == filters.SpecifiedDate).ToList();
+            }
+
+            if (filters.StartDate != null && filters.EndDate != null)
+            {
+                allData = allData.Where(e => e.LastModifiedTimeStamp >= filters.StartDate && e.LastModifiedTimeStamp <= filters.EndDate).ToList();
+            }
+
+
+            if (filters.FwVersion != null)
+            {
+                allData = allData.Where(e => e.FwVersion == filters.FwVersion).ToList();
+            }
+
+            if (filters.RackName != null)
+            {
+                allData = allData.Where(e => e.RackName == filters.RackName).ToList();
+            }
+
+            return allData;
+        }
+    
+
         // PUT: api/Test/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -54,7 +94,7 @@ namespace TestManager.Server.Controllers
 
             try
             {
-                Test entry_ = await _context.Tests.FindAsync();
+                Test entry_ = await _context.Tests.FirstAsync(e=> e.ID == test.ID);
                 
                 if (entry_.Title != test.Title)
                 {
@@ -131,7 +171,7 @@ namespace TestManager.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTest(int id)
         {
-            var test = await _context.Tests.FindAsync(id);
+            var test = await _context.Tests.FirstAsync(e => e.ID == id);
             if (test == null)
             {
                 return NotFound($"No test with id {id} found!");
